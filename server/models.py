@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
+import datetime
 
 
 db = SQLAlchemy()
@@ -22,15 +23,15 @@ class Workout(db.Model):
     __tablename__ = 'Workout'
 
     id = db.Column(db.Integer, primary_key = True)
-    date = db.Column(db.Datetime)
+    date = db.Column(db.DateTime, default = datetime.date.today())
 
 
 class WorkoutExercise(db.Model):
     __tablename__ = 'WorkoutExercise'
 
-    id = db.Column(primary_key = True)
-    workout_id = db.Column(foreign_key = True)
-    exercide_id = db.Column(foreign_key = True)
+    id = db.Column(db.Integer, primary_key = True)
+    workout_id = db.Column(db.Integer, db.ForeignKey('Workout.id'))
+    exercise_id = db.Column(db.Integer, db.ForeignKey('Exercise.id'))
     reps = db.Column(db.Integer)
     sets = db.Column(db.Integer)
     duration_seconds = db.Column(db.Integer)
