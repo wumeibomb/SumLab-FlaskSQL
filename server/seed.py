@@ -16,5 +16,6 @@ with app.app_context():
         Exercise(id= 11, name = "Jake", category = "Biceps", equipment_needed = True)
     ]
 
+    #adds to the db:
     db.session.add_all(workouts + exercises)
     db.session.commit()
