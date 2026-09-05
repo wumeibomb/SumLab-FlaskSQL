@@ -7,8 +7,8 @@ with app.app_context():
     db.session.query(Exercise).delete()
 
     workouts = [
-        Workout(id= 10, date = 30/8/2026, duration_minutes = 15, notes = "WORK!"),
-        Workout(id= 11, date = 30/8/2026, duration_minutes = 10, notes = "WORKING!")
+        Workout(id= 10, date = "30/8/2026", duration_minutes = 15, notes = "WORK!"),
+        Workout(id= 11, date = "30/8/2026", duration_minutes = 10, notes = "WORKING!")
     ]
 
     exercises = [
@@ -16,6 +16,11 @@ with app.app_context():
         Exercise(id= 11, name = "Jake", category = "Biceps", equipment_needed = True)
     ]
 
+    workout_exercise = [
+        WorkoutExercise(id = 1, workout_id = 10, exercise_id = 10, reps = 2, sets = 2, duration_seconds = 0),
+        WorkoutExercise(id = 2, workout_id = 11, exercise_id = 11, reps = 3, sets = 2, duration_seconds = 0)
+    ]
+
     #adds to the db:
-    db.session.add_all(workouts + exercises)
+    db.session.add_all(workouts + exercises + workout_exercise)
     db.session.commit()
