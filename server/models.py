@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
-import datetime
+from datetime import date
 
 
 db = SQLAlchemy()
@@ -32,7 +32,7 @@ class Workout(db.Model):
     __tablename__ = 'Workout'
 
     id = db.Column(db.Integer, primary_key = True)
-    date = db.Column(db.DateTime, default = datetime.date.today())
+    date = db.Column(db.String, default = date.today().strftime("%d/%m/%Y"))
     duration_minutes = db.Column(db.Integer)
     notes = db.Column(db.String(200))
 
