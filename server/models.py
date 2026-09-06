@@ -9,6 +9,17 @@ db = SQLAlchemy()
 #relational databases, store, create and discover relationships
 #Select, From, Where, Group By, Having, Order By
 
+#joining tables for many to many don't need to be models
+Workout_Exercise = db.Table(
+    'WorkoutExercise',
+    db.Column("id", db.Integer, primary_key = True),
+        db.Column("workout_id", db.Integer, db.ForeignKey("Workout.id")),
+        db.Column("exercise_id", db.Integer, db.ForeignKey("Exercise.id")),
+    db.Column("reps", db.Integer),
+    db.Column("sets", db.Integer),
+    db.Column("duration_seconds", db.Integer)
+)
+
 
 class Exercise(db.Model):
     __tablename__ = 'Exercise'
@@ -18,6 +29,12 @@ class Exercise(db.Model):
     category = db.Column(db.String(100))
     equipment_needed = db.Column(db.Boolean)
 
+    test_relations_E = db.relationship('Workout', secondary = Workout_Exercise, back_populates = 'Exercise')
+
+    def __repr__(self):
+        return f"<Exercise {self.id}, {self.name}, {self.category}, {self.equipment_needed}>" #what it do?
+
+ 
     #helper methods??? becomes a dictionary for viewing.
     def dict(self):
         return {
@@ -36,6 +53,11 @@ class Workout(db.Model):
     duration_minutes = db.Column(db.Integer)
     notes = db.Column(db.String(200))
 
+    test_relations_W = db.relationship('Exercise', secondary = Workout_Exercise, back_populates = 'Workout')
+
+    def __repr__(self):
+        return f"<Workout {self.id}, {self.date}, {self.duration_minutes}, {self.notes}"
+
     def dict(self):
         return {
             "id": self.id,
@@ -44,22 +66,3 @@ class Workout(db.Model):
             "notes": self.notes
         }
 
-class WorkoutExercise(db.Model):
-    __tablename__ = 'WorkoutExercise'
-
-    id = db.Column(db.Integer, primary_key = True)
-    workout_id = db.Column(db.Integer, db.ForeignKey('Workout.id'))
-    exercise_id = db.Column(db.Integer, db.ForeignKey('Exercise.id'))
-    reps = db.Column(db.Integer)
-    sets = db.Column(db.Integer)
-    duration_seconds = db.Column(db.Integer)
-
-    def dict(self):
-        return {
-            "id": self.id,
-            "workout_id": self.workout_id,
-            "exercise_id":self.exercise_id,
-            "reps": self.reps,
-            "sets": self.sets,
-            "duration_seconds":self.duration_seconds
-        }

@@ -16,11 +16,10 @@ with app.app_context():
         Exercise(id= 11, name = "Jake", category = "Biceps", equipment_needed = True)
     ]
 
-    workout_exercise = [
-        WorkoutExercise(id = 1, workout_id = 10, exercise_id = 10, reps = 2, sets = 2, duration_seconds = 0),
-        WorkoutExercise(id = 2, workout_id = 11, exercise_id = 11, reps = 3, sets = 2, duration_seconds = 0)
-    ]
+    w10.exercises.append(e10)
+    e10.workouts.append(w10)
+
 
     #adds to the db:
-    db.session.add_all(workouts + exercises + workout_exercise)
+    db.session.add_all(workouts + exercises )
     db.session.commit()
