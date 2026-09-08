@@ -49,46 +49,95 @@ def add_workout():
     return jsonify(get_data)
 
 @app.route("/workouts/<int:identity>", methods = ["GET", "DELETE"])
-def retrieve_workout(identity):
-    #data = request.get_json()
+def retrieve_delete_workouts(identity):
 
-    workouts = db.session.execute(db.select(Workout).where(Workout.id == identity))
-    print(workouts)
+    if request.method == "GET":
+    
+        workouts = db.session.execute(db.select(Workout).where(Workout.id == identity))
 
-    get_data = {
-        "message": "Data Retrieved successfully",
-        "data": [each.dict() for each in workouts.scalars()]
-        }
-    print("IDENTIFIER", get_data)
-    return jsonify(get_data)
+        get_data = {
+                "message": "Data Retrieved Successfully",
+                "data": [each.dict() for each in workouts.scalars()]
+                }
 
+        if get_data["data"] == []:
+            return jsonify({"error": "Workout ID doesn't exist"}), 204
+        
+        #print("IDENTIFIER", get_data) - for testing
+        return jsonify(get_data)
 
-@app.route("/exercises", methods=["GET", "POST"])
-def add_Exercise():
-    data = request.get_json()
+    # join workout class to workoutexercise class for the reps, sets and durtiondata 
+    
 
-    id = data["id"]
-    name = data["name"]
-    category = data["category"]
-    equipment_needed = data["equipment_needed"]
-
-    new_exercise = Exercise(id = id, name = name, category = category, equipment_needed = equipment_needed)
-
-    db.session.add(new_exercise)
+    db.session.execute(db.delete(Workout).where(Workout.id == identity)) 
     db.session.commit()
 
     output = {
-        "message": "Added new exercise!",
-        "data": new_exercise.dict()
-    }
+                "message": "Workout Deleted Successfully"
+            }
+    return jsonify(output)
+    
 
+@app.route("/exercises", methods=["GET", "POST"])
+def add_Exercise():
+
+    if request.method == "POST":
+
+        data = request.get_json()
+
+        id = data["id"]
+        name = data["name"]
+        category = data["category"]
+        equipment_needed = data["equipment_needed"]
+
+        new_exercise = Exercise(id = id, name = name, category = category, equipment_needed = equipment_needed)
+
+        db.session.add(new_exercise)
+        db.session.commit()
+
+        output = {
+            "message": "Added new exercise!",
+            "data": new_exercise.dict()
+        }
+
+        return jsonify(output)
+
+    retrieval = db.session.scalars(db.select(Exercise)).all()
+    
+    get_data = {
+        "message": "Successful data retrieval",
+        "data": [eachE.dict() for eachE in retrieval]
+        }
+    
+    return jsonify(get_data)
+    
+
+@app.route("/exercises/<id>", methods = ["GET", "DELETE"])
+def retrieve_delete_exercise(id):
+
+    if request.method == "GET":
+
+        exercises = db.session.execute(db.select(Exercise).where(Exercise.id == id))
+    
+        get_data = {
+            "message": "Data Retrieved Successfully",
+            "data": [eachE.dict() for eachE in exercises.scalars()]
+            }
+    
+        if get_data["data"] == []:
+            return jsonify({"error": "Exercise ID doesn't exist"}), 204
+            
+        return jsonify(get_data)
+
+    db.session.execute(db.session.delete(Exercise).where(Exercise.id == id))
+    db.session.commit()
+
+    output = {
+        "message": "Exercise Deleted Successfully"
+    }
     return jsonify(output)
 
-@app.route("/exercises/<id>", methods = ["GET", "POST"])
-def retrieve_exercise():
-    pass
-
-@app.route("/workouts/<workout_id>/exercises/<exercise_id>/workout_exercise", methods = ["POST"])
+@app.route("/workouts/<int:workout_id>/exercises/<int:exercise_id>/workout_exercise", methods = ["POST"])
 def add_exercise_to_workout():
     pass
 

@@ -47,8 +47,6 @@ class Workout(db.Model):
     #workout one to many workexes
     #workout one has many exercises based on workout exercises.
 
-    #  connecting to exercises table
-    #exercises = db.relationship('')
     #first argument should be the class not the table
     workouts_exe = db.relationship('WorkoutExercise', back_populates = 'workouts', cascade = 'all, delete-orphan')
 
