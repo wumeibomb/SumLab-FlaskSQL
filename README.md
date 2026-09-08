@@ -7,9 +7,9 @@
  (Ensure that you also have SQL Viewer installed on your IDE or a similar extension to view the database)
  - For testing reasons, the instance folder contains nothing so that you can test the seed.py file yourself. To do this:
        - First, use flask db migrate -m "message" to migrate the data for the table.
-      -  If this gives the error "Target database not up-to-date" use flask db stamp head and then flask migrate.
-      -  Next, use flask db ugrade head to create the database in the instance folder.
-      -  Then lastly, use the python seed.py command to add test data. Make sure youa re within the server/ folder.
+       - If this gives the error "Target database not up-to-date" use flask db stamp head and then flask migrate.
+       - Next, use flask db ugrade head to create the database in the instance folder.
+       - Then lastly, use the python seed.py command to add test data. Make sure youa re within the server/ folder.
 
  ## For flask_shell usage:
    If you are planning on testing the relationhips via flask_shell, here is a simple query to use for testing: 
