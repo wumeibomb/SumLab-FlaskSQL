@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import validates
-from datetime import date
+from marshmallow import Schema, fields, ValidationError, validates_schema
 
 
 db = SQLAlchemy()
@@ -40,7 +40,7 @@ class Workout(db.Model):
     __tablename__ = 'workout'
 
     id = db.Column(db.Integer, primary_key = True)
-    date = db.Column(db.Date)
+    date = db.Column(db.String)
     duration_minutes = db.Column(db.Integer)
     notes = db.Column(db.String(200))
 
@@ -52,7 +52,7 @@ class Workout(db.Model):
     #first argument should be the class not the table
     workouts_exe = db.relationship('WorkoutExercise', back_populates = 'workouts', cascade = 'all, delete-orphan')
 
-    def __repr__(self):
+    def __repr__(self): #returns a printable representation of an object 
         return f"<Workout {self.id}, {self.date}, {self.duration_minutes}, {self.notes}"
 
     def dict(self):
@@ -89,4 +89,45 @@ class WorkoutExercise(db.Model):
 
     def __repr__(self):
         return f"<WorkoutExercise {self.id}, {self.workout_id}, {self.exercise_id}, {self.reps}, {self.sets}, {self.duration_seconds}>"
+
+class Work_Exer_Schema(Schema):
+    id = fields.Int(dump_only = True) #dump_only meaning it won't be deserialized
+    workout_id = fields.Int(dump_only = True)
+    exercise_id = fields.Int(dump_only = True)
+    reps = fields.Int()
+    sets = fields.Int()
+    duration_seconds = fields.Int()
+    workout = fields.Nested(lambda: WorkoutSchema(exclude=("workout_exercise",)))
+    exercise = fields.Nested(lambda: ExerciseSchema(exclude=("workout_exercise",))) #tuple???
+
+    @validates_schema
+    def validate_reps_sets(self, data, **kwargs):
+        if data["reps"] == 0:
+            raise ValidationError("reps have to be 1 or more")
+
+        if data["sets"] == 0:
+            raise ValidationError("sets have to be 1 or more")
+
+        
+class WorkoutSchema(Schema):
+    id = fields.Int(dump_only = True)
+    date = fields.String()
+    duration_minutes = fields.Int()
+    notes = fields.String()
+    work_exe = fields.List(fields.Nested(Work_Exer_Schema(exclude=("workout", "exercise"))))
+
+    @validates_schema
+    def validate_date(self, data, **kwargs):
+        if data["date"] == '':
+            raise ValidationError("date cannot be empty, format : YYYY/MM/DD")
+
+#I don't understand the usage of marshamallw schema's if we have already created a dict funtion in the classes 
+
+
+class ExerciseSchema(Schema):
+    id = fields.Int(dump_only= True)
+    name = fields.String()
+    category = fields.String()
+    equipment_needed = fields.Bool()
+    work_exe = fields.List(fields.Nested(Work_Exer_Schema(exclude=("workout", "exercise"))))
 
