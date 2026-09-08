@@ -9,30 +9,21 @@ db = SQLAlchemy()
 #relational databases, store, create and discover relationships
 #Select, From, Where, Group By, Having, Order By
 
-#joining tables for many to many don't need to be models
-Workout_Exercise = db.Table(
-    'WorkoutExercise',
-    db.Column("id", db.Integer, primary_key = True),
-        db.Column("workout_id", db.Integer, db.ForeignKey("Workout.id")),
-        db.Column("exercise_id", db.Integer, db.ForeignKey("Exercise.id")),
-    db.Column("reps", db.Integer),
-    db.Column("sets", db.Integer),
-    db.Column("duration_seconds", db.Integer)
-)
-
+#simple assosciation table for thee exercise and workout relations
 
 class Exercise(db.Model):
-    __tablename__ = 'Exercise'
+    __tablename__ = 'exercise'
 
     id = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(100))
     category = db.Column(db.String(100))
     equipment_needed = db.Column(db.Boolean)
 
-    test_relations_E = db.relationship('Workout', secondary = Workout_Exercise, back_populates = 'Exercise')
+    #connecting to workouts table 
+    workouts_exe = db.relationship("WorkoutExercise", back_populates = 'exercises', cascade = 'all, delete-orphan')
 
     def __repr__(self):
-        return f"<Exercise {self.id}, {self.name}, {self.category}, {self.equipment_needed}>" #what it do?
+        return f"<exercise {self.id}, {self.name}, {self.category}, {self.equipment_needed}>" #what it do?
 
  
     #helper methods??? becomes a dictionary for viewing.
@@ -46,14 +37,20 @@ class Exercise(db.Model):
 
 
 class Workout(db.Model):
-    __tablename__ = 'Workout'
+    __tablename__ = 'workout'
 
     id = db.Column(db.Integer, primary_key = True)
-    date = db.Column(db.String, default = date.today().strftime("%d/%m/%Y"))
+    date = db.Column(db.Date)
     duration_minutes = db.Column(db.Integer)
     notes = db.Column(db.String(200))
 
-    test_relations_W = db.relationship('Exercise', secondary = Workout_Exercise, back_populates = 'Workout')
+    #workout one to many workexes
+    #workout one has many exercises based on workout exercises.
+
+    #  connecting to exercises table
+    #exercises = db.relationship('')
+    #first argument should be the class not the table
+    workouts_exe = db.relationship('WorkoutExercise', back_populates = 'workouts', cascade = 'all, delete-orphan')
 
     def __repr__(self):
         return f"<Workout {self.id}, {self.date}, {self.duration_minutes}, {self.notes}"
@@ -65,4 +62,31 @@ class Workout(db.Model):
             "duration_minutes": self.duration_minutes,
             "notes": self.notes
         }
+
+class WorkoutExercise(db.Model):
+    __tablename__ = 'workout_exercise'
+
+    id = db.Column(db.Integer, primary_key = True)
+    workout_id = db.Column(db.Integer, db.ForeignKey('workout.id'))
+    exercise_id = db.Column(db.Integer, db.ForeignKey('exercise.id'))
+    reps = db.Column(db.Integer)
+    sets = db.Column(db.Integer)
+    duration_seconds = db.Column(db.Integer)
+
+    #maps the foreign key containing model to have a relationship with the exercise and workout tables/models
+    exercises = db.relationship('Exercise', back_populates = 'workouts_exe')
+    workouts = db.relationship('Workout', back_populates = 'workouts_exe')
+    
+    def dict(self):
+        return {
+            "id": self.id,
+            "workout_id": self.workout_id,
+            "exercise_id":self.exercise_id,
+            "reps": self.reps,
+            "sets": self.sets,
+            "duration_seconds":self.duration_seconds
+        }
+
+    def __repr__(self):
+        return f"<WorkoutExercise {self.id}, {self.workout_id}, {self.exercise_id}, {self.reps}, {self.sets}, {self.duration_seconds}>"
 
